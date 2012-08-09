@@ -394,6 +394,8 @@ awful.rules.rules = {
       properties = { tag = tags[1][4] } },
     { rule = { instance = "set_on_tag7"},
       properties = { tag = tags[1][7] } },
+    { rule = { instance = "set_on_tag9"},
+      properties = { tag = tags[1][9] } },
 }
 -- }}}
 
@@ -477,11 +479,13 @@ run_once("/usr/bin/firefox",nil,"firefox")              -- Run browser
 run_once("sakura --name=set_on_tag4 & sakura --name=set_on_tag4 & sakura --name=set_on_tag4 & sakura --name=set_on_tag4",nil,"sakura")  -- Run four terminals (set to tag 4, see rules)
 run_once("~/bin/open_work.sh",nil,"open_work.sh")       -- Run Document stuff
 run_once("pybliographic","~/Documents/Shared/phd/bibliography.bib","/usr/bin/pyblio") -- Referencer
+run_once("thunar --name=set_on_tag9",nil,"thunar")      -- File manager
 
+-- pamon was messing up my system and kept writing to .xsession-errors at ~170 KB/s
+-- each line was filled with ~300 000 000 nonsense characters
+-- No issues noticed from this workaround
+awful.util.spawn_with_shell('killall pamon')
 
--- Finally, use wmctrl to launch four sessions of sakura on tag 4
--- If there are any instances of sakura running, this will not be excecuted (see run_once)
--- LATER! (there is no utility to spawn commands under specific tags, there is a workaround using rules and callback but I doubt this is a good idea if awesome is restarted...
 --- }}}
 
 --- {{{ Autostop applications
