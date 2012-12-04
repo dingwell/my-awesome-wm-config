@@ -1,0 +1,10 @@
+This is a customized version of the Zenburn theme.
+
+Zenburn was originally written for Vim by Jani Nurminen:
+http://slinky.imukuppi.org/zenburnpage/
+
+The theme has later been adapted for other applications by Adrian C.:
+http://sysphere.org/~anrxc/j/articles/zenburn/index.html
+
+My version is basically the same as Adrians but the config file has been 
+modified to work better with my rc.lua-file.
