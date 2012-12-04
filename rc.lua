@@ -7,32 +7,40 @@
 require("awful")
 require("awful.autofocus")
 require("awful.rules")
--- Theme handling library
-require("beautiful")
--- Notification library
-require("naughty")
--- Widgets library (basic)
-require("vicious")
--- (custom) dmenu-like freedesktop.menu:
-require("menubar")
--- Load Debian menu entries (redundant?)
-require("debian.menu")
+require("beautiful")          -- Theme handling library
+require("naughty")            -- Notification library
+require("vicious")            -- Widgets library (basic)
+require("menubar")            -- (custom) dmenu-like freedesktop.menu (remove?)
+require("debian.menu")        -- Load Debian menu entries
 
 -- {{{ Variable definitions
+home = os.getenv("HOME")      -- Path to home directory
 -- Themes define colours, icons, and wallpapers
+  -- I use nitrogen to set the wallpaper, this can be 
+  -- disabled by commenting out the following lines or 
+  -- by switching to a different theme.
+  -- Note that my theme has been modified to handle this...
+  wallpapertool = "nitrogen " .. 
+    home .. "/Pictures/wallpapers"    -- For myawesomemenu
+  wallpapercmd  = "nitrogen --restore &"  -- For theme.lua
 beautiful.init(".config/awesome/themes/adam/theme.lua")
 -- beautiful.init("/usr/share/awesome/themes/zenburn/theme.lua")
 
--- This is used later as the default terminal and editor to run.
-terminal = "sakura" or "xterm"
-editor = os.getenv("EDITOR") or "vim"
-editor_cmd = terminal .. " -e " .. editor
+-- Define some default programs 
+-- This does not apply for the entire Xsession
+-- but is used internally by awesome for autostart
+-- and creating the launch menu
+terminal      = "sakura" or "xterm"
+editor        = os.getenv("EDITOR") or "vim"
+editor_cmd    = terminal .. " -e " .. editor
+filemanager   = "thunar" or "nautilus"
+wwwbrowser    = "firefox"   -- Note: rules only apply for firefox!
+
+-- Custom Quit command:
+quit_cmd      = 'quit_awesome.sh' -- w/ custom autostop
+--quit_cmd      = "'awesome.quit()' | awesome-client" -- no autostop
 
 -- Default modkey.
--- Usually, Mod4 is the key with a logo between Control and Alt.
--- If you do not like this or do not have such a key,
--- I suggest you to remap Mod4 to another key using xmodmap or other tools.
--- However, you can use another modifier like Mod1, but it may interact with others.
 modkey = "Mod4"
 
 -- Table of layouts to cover with awful.layout.inc, order matters.
@@ -56,16 +64,25 @@ layouts =
 -- {{{ Tags
 -- Define a tag table which hold all screen tags.
 tags = {
-  names = {"1-W ", "2-@ ", "3-N ", "4-# ", "5-F ",
-  	   "-6-", "-7-", "-8-", "-9-"},
-  layout = { layouts[2], layouts[2], layouts[2],layouts[3], layouts[4],
-  	     layouts[2], layouts[2], layouts[2], layouts[2]
-}}
+  -- Used for defaults and screen 1:
+  names   = { "1-W ", "2-@ ", "3-N ", "4-# ", "5-F ",
+  	          "-6-", "-7-", "-8-", "-9-" },
+  layout    = { layouts[2], layouts[2], layouts[2],layouts[4], layouts[4],
+  	            layouts[2], layouts[2], layouts[2], layouts[2] },
+  -- Used for screen 2:
+  names2  = { "1-FM ", "2-# ", "-3-" },
+  layout2 = { layouts[2], layouts[3], layouts[2] }
+}
 
 for s = 1, screen.count() do
     -- Each screen has its own tag table.
---    tags[s] = awful.tag({ 1, 2, 3, 4, 5, 6, 7, 8, 9 }, s, layouts)
-    tags[s] = awful.tag(tags.names, s, tags.layout)
+    if s==1 then                      -- Screen 1 uses default table
+      tags[s] = awful.tag(tags.names, s, tags.layout)
+    elseif s==2 then                  -- Screen 2 uses spc. table
+      tags[s] = awful.tag(tags.names2, s, tags.layout2)
+    else                              -- Additional screens use def.
+      tags[s] = awful.tag(tags.names, s, tags.layout)
+    end
 end
 -- }}}
 
@@ -73,9 +90,11 @@ end
 -- Create a laucher widget and a main menu
 myawesomemenu = {
    { "manual", terminal .. " -e man awesome" },
+   { "Set Wallpaper", wallpapertool },
    { "edit config", editor_cmd .. " " .. awful.util.getdir("config") .. "/rc.lua" },
-   { "restart", awesome.restart },
-   { "quit", awesome.quit }
+   { "Restart", awesome.restart },
+   --{ "quit", awesome.quit }
+   { "Quit", quit_cmd }
 }
 
 mymainmenu = awful.menu({ items = { { "awesome", myawesomemenu, beautiful.awesome_icon },
@@ -249,7 +268,9 @@ globalkeys = awful.util.table.join(
     awful.key({ "Control", "Mod1" }, "l", function () awful.util.spawn("lockscreen.sh") end), --Mod1=Alt
 
     awful.key({ modkey, "Control" }, "r", awesome.restart),
-    awful.key({ modkey, "Shift"   }, "q", awesome.quit),
+    --awful.key({ modkey, "Shift"   }, "q", awesome.quit),
+    awful.key({ modkey, "Shift"   }, "q",
+      function() awful.util.spawn(quit_cmd) end),
 
     awful.key({ modkey,           }, "l",     function () awful.tag.incmwfact( 0.05)    end),
     awful.key({ modkey,           }, "h",     function () awful.tag.incmwfact(-0.05)    end),
@@ -359,6 +380,8 @@ awful.rules.rules = {
       properties = { floating = true } },
     { rule = { class = "gimp" },
       properties = { floating = true } },
+    { rule = { class = "Sozi.py" },
+      properties = { floating = true } },
     -- Setup Firefox
     { rule = { class = "Firefox", instance = "Navigator" }, -- Main window
       properties = { tag = tags[1][1], floating = false } },
@@ -366,7 +389,7 @@ awful.rules.rules = {
       properties = { floating = true } },
     { rule = { class = "Firefox", instance = "Dialog" },  -- other dialogs (add class firefox to rules?)
       properties = { floating = true } },
-    { rule = { class = "Firefox", name = "Downloads" }, --dowload window
+    { rule = { class = "Firefox", name = "Downloads" }, --download window
       properties = {}, callback = awful.client.setslave },
     -- Set Claws to always map on tag 1 of screen 1, and disable float
     { rule = {class = "Claws-mail", role = "mainwindow"}, -- role option doesn't work...
@@ -390,13 +413,36 @@ awful.rules.rules = {
     { rule = { name = "Error (pybliographer)" },    -- Apply this AFTER main rule for Pybliographer
       properties = { floating = true }},
     -- Applications launched with '--name=set_on_tagX' should be put on tag X (command may vary)
-    { rule = { instance = "set_on_tag4"},
+    { rule = { instance = "set_on_s1t4"},
       properties = { tag = tags[1][4] } },
-    { rule = { instance = "set_on_tag7"},
+    { rule = { instance = "set_on_s1t7"},
       properties = { tag = tags[1][7] } },
-    { rule = { instance = "set_on_tag9"},
+    { rule = { instance = "set_on_s1t9"},
       properties = { tag = tags[1][9] } },
-}
+    -- For Python development:
+    { rule = { class = "Tk" },
+      properties = { floating = true } },
+-- For dual monitors (don't try to match these if less than 2 monitors are present!)
+  }
+  if  screen.count() > 1 then   -- For two or more screen we make additional rules
+    nr = #awful.rules.rules   -- Current number of rules
+    nr = nr+1                 -- Index for next rule
+    awful.rules.rules[nr] =                 -- Append new rule
+      { rule = { instance = "set_on_s2t1"}, --
+        properties = { tag = tags[2][1] } } --
+    nr = nr+1                 -- Update index for next rule
+    awful.rules.rules[nr] =                 -- Append new rule
+      { rule = { instance = "set_on_s2t2"}, --
+        properties = { tag = tags[2][2] } } --
+    nr = nr+1                 -- Update index for next rule
+    awful.rules.rules[nr] =                 -- Append new rule
+      { rule = { instance = "set_on_s2t3"}, --
+        properties = { tag = tags[2][3] } } --
+    nr = nr+1                 -- Update index for next rule
+    awful.rules.rules[nr] =                       -- Append new rule
+      { rule = { class = "Hamster-time-tracker" },--
+        properties = { tag = tags[2][3] } }       --
+  end
 -- }}}
 
 -- {{{ Signals
@@ -457,39 +503,80 @@ end
 
 -- {{{ Autostart applications
 
--- Run dropbox without nautilus (installed to be used with nautilus)
---  run_once("dropbox",nil,"~/.dropbox-dist/dropboxd")
---  awful.util.spawn_with_shell("run_once.sh ~/.dropbox-dist/dropboxd")
-run_once("dropbox","start")
-
--- is pulseaudio run by another user? (error mes. recieved)
---  run_once("pulseaudio")           -- the Pulse audio system
-run_once("conky")                 -- Status panel
---run_once("xfsettingsd")	        -- Handles themes?
-run_once("nm-applet")		        -- a Network manager applet
---update-notifier		            -- Checks for updates (will crash the session!?)
---system-config-printer-applet	    -- System tray print job manager
-run_once("blueman-applet")	    -- Managing bluetooth devices
--- gnome-power-manager &            -- for laptops and stuff
--- gnome-volume-manager &           -- for mounting CDs, USB sticks, and such
--- run_once("nixnote",nil,"/bin/sh /usr/bin/nixnote")  -- Run nixnote, fund pname: ps -AF|grep nixnote -i (match with a ps -A)
-run_once("tomboy","--search")                           -- Run note taking app
-run_once("~/bin/run_claws-mail.sh",nil,"claws-mail")    -- Run e-mail client
-run_once("/usr/bin/firefox",nil,"firefox")              -- Run browser
-run_once("sakura --name=set_on_tag4 & sakura --name=set_on_tag4 & sakura --name=set_on_tag4 & sakura --name=set_on_tag4",nil,"sakura")  -- Run four terminals (set to tag 4, see rules)
-run_once("~/bin/open_work.sh",nil,"open_work.sh")       -- Run Document stuff
-run_once("pybliographic","~/Documents/Shared/phd/bibliography.bib","/usr/bin/pyblio") -- Referencer
-run_once("thunar --name=set_on_tag9",nil,"thunar")      -- File manager
-
 -- pamon was messing up my system and kept writing to .xsession-errors at ~170 KB/s
 -- each line was filled with ~300 000 000 nonsense characters
 -- No issues noticed from this workaround
 awful.util.spawn_with_shell('killall pamon')
+-- wait... I run this in ~/.Xsession for unlocking the login keyring?!
+-- maybe I should just dump all of it's output to /dev/null
+-- or would that be stupid...?
+
+-- Run dropbox without nautilus (installed to be used with nautilus)
+--  run_once("dropbox",nil,"~/.dropbox-dist/dropboxd")
+run_once("dropbox","start")
+
+-- is pulseaudio run by another user? (error mes. recieved)
+--  run_once("pulseaudio")           -- the Pulse audio system
+run_once("conky")                   -- System monitor
+--run_once("xfsettingsd")	          -- Handles themes, can also be configured manually
+run_once("nm-applet",nil,nil,1)		  -- Network manager applet
+--update-notifier		                -- Checks for updates (will crash the session!?)
+--system-config-printer-applet	    -- System tray print job manager
+run_once("blueman-applet",nil,nil,1)-- Managing bluetooth devices
+-- gnome-power-manager &            -- for laptops and stuff
+-- gnome-volume-manager &           -- for mounting CDs, USB sticks, and such
+-- run_once("nixnote",nil,"/bin/sh /usr/bin/nixnote")  -- Run nixnote, found pname: ps -AF|grep nixnote -i (match with a ps -A)
+run_once("tomboy","--search",nil,1)                     -- Run note taking app
+run_once("~/bin/run_claws-mail.sh",nil,"claws-mail",1)  -- Run e-mail client
+--run_once("/usr/bin/firefox",nil,"firefox")            -- Run browser
+run_once(wwwbrowser,nil,nil,1)                          -- Run browser
+run_once("~/bin/open_work.sh",nil,"open_work.sh",1)     -- Run Document stuff
+run_once("pybliographic","~/Documents/Shared/phd/bibliography.bib",
+          "/usr/bin/pyblio",1)                          -- Referencer
+
+-- Autostart applications specific to different screen setups
+if screen.count() == 1 then   -- Only one screen
+  -- Launch 4 terminals on first screen (see rules)
+  run_once( "sakura --name=set_on_s1t4" .. "&" ..
+            "sakura --name=set_on_s1t4" .. "&" ..
+            "sakura --name=set_on_s1t4" .. "&" ..
+            "sakura --name=set_on_s1t4" .. "&",nil,terminal)
+  -- Launch file manager on screen 1 tag 9 (see rules)
+  run_once( filemanager .. " --name=set_on_s1t9",nil,filemanager)  
+
+-- In my ~/.Xsession I create the file /tmp/AWM
+-- the next line will try to remove this file, if succesful (ie the file exists)
+-- it returns a 'true' value required to enter the elseif section
+-- When awesome restart without restarting the entire X-session this file 
+-- will already be deleted and os.remove will return false
+elseif screen.count() > 1 and os.remove("/tmp/AWM") then  -- Two or more screens
+  -- Launch 4 terminals on first screen (see rules)
+  awful.util.spawn_with_shell( 
+            terminal .. " --name=set_on_s1t4" .. "&" ..
+            terminal .. " --name=set_on_s1t4" .. "&" ..
+            terminal .. " --name=set_on_s1t4" .. "&" ..
+            terminal .. " --name=set_on_s1t4" .. "&",1)
+  -- Launch 4 terminals on second screen (see rules)
+  awful.util.spawn_with_shell(
+            terminal .. " --name=set_on_s2t2" .. 
+              " -e octave" .. "&" ..
+            terminal .. " --name=set_on_s2t2" .. "&" ..
+            terminal .. " --name=set_on_s2t2" .. "&" ..
+            terminal .. " --name=set_on_s2t2" .. "&",2) 
+  -- Launch file manager on first 2 screens (see rules)
+  run_once( filemanager .." --name=set_on_s1t9" .. "&",nil,filemanager,1)
+  awful.util.spawn_with_shell( filemanager .." --name=set_on_s2t1",2)
+  -- Launch time tracker on screen 2
+  awful.util.spawn_with_shell( "hamster-time-tracker &",2)
+end
+
+
 
 --- }}}
 
 --- {{{ Autostop applications
 -- todo add backup scripts to be run on exit
 -- Backup Documents and bin directories:
-awesome.add_signal("exit",function() awful.util.spawn("autostop.sh") end)
+--awesome.add_signal("exit",function() awful.util.spawn("autostop.sh") end)
+-- I do not use this since awesome quits too fast for the script to finish, instead I replaced the awesome quit commands in this file. (i.e. the hotkey AND the menu entry
 --- }}}
