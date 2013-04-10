@@ -44,8 +44,7 @@ quit_cmd      = 'quit_awesome.sh' -- w/ custom autostop
 modkey = "Mod4"
 
 -- Table of layouts to cover with awful.layout.inc, order matters.
-layouts =
-{
+layouts = {
     awful.layout.suit.floating, --1
     awful.layout.suit.tile, --2
 --    awful.layout.suit.tile.left,
@@ -89,17 +88,28 @@ end
 -- {{{ Menu
 -- Create a laucher widget and a main menu
 myawesomemenu = {
-   { "manual", terminal .. " -e man awesome" },
-   { "Set Wallpaper", wallpapertool },
-   { "edit config", editor_cmd .. " " .. awful.util.getdir("config") .. "/rc.lua" },
-   { "Restart", awesome.restart },
+   { "manual", terminal .. " -e man awesome", beautiful.menu_manual_icon},
+   { "Set Wallpaper", wallpapertool, beautiful.menu_wallpaper_icon},
+   { "Restart Conky", "restart_conky.sh", beautiful.menu_restart_icon},
+
+   { "Edit config", editor_cmd .. " " .. awful.util.getdir("config") .. "/rc.lua", beautiful.menu_edit_icon},
+   { "Test config", "test_awesome.sh", beautiful.menu_test_icon },
+   { "Restart", awesome.restart, beautiful.menu_restart_icon},
    --{ "quit", awesome.quit }
-   { "Quit", quit_cmd }
+   { "Quit", quit_cmd, beautiful.menu_quit_icon}
+}
+
+myappsmenu = {
+   { "Claws Mail", "claws-mail", "/usr/share/pixmaps/claws-mail.png"},
+   { "Firefox", "firefox", beautiful.menu_firefox_icon },
+   { "Thunar Files", "thunar", beautiful.menu_files_icon },
+   { "Tomboy Notes", "tomboy", "/usr/share/pixmaps/tomboy-32.xpm"}
 }
 
 mymainmenu = awful.menu({ items = { { "awesome", myawesomemenu, beautiful.awesome_icon },
-                                    { "Debian", debian.menu.Debian_menu.Debian },
-                                    { "open terminal", terminal }
+                                    { "Applications", myappsmenu, beautiful.menu_apps_icon },
+                                    { "Debian", debian.menu.Debian_menu.Debian, beautiful.menu_debian_icon },
+                                    { "open terminal", terminal, beautiful.menu_terminal_icon }
                                   }
                         })
 
@@ -374,6 +384,7 @@ awful.rules.rules = {
                      focus = true,
                      keys = clientkeys,
                      buttons = clientbuttons } },
+    -- Application specific rules
     { rule = { class = "MPlayer" },
       properties = { floating = true } },
     { rule = { class = "pinentry" },
@@ -382,6 +393,11 @@ awful.rules.rules = {
       properties = { floating = true } },
     { rule = { class = "Sozi.py" },
       properties = { floating = true } },
+    -- Setup Terminal Emulator
+--  { rule = { class = terminal },  -- If terminal name is the same as window class
+    { rule = { class = "Sakura" },
+      properties = { floating = true },
+      properties = { opacity = 0.8 } },
     -- Setup Firefox
     { rule = { class = "Firefox", instance = "Navigator" }, -- Main window
       properties = { tag = tags[1][1], floating = false } },
@@ -397,21 +413,18 @@ awful.rules.rules = {
     { rule = {class = "Claws-mail", role ~= "mainwindow"}, -- role option doesn-t work...
       properties = { floating = true } },
     -- Set NixNote to always map on tag 3 screen 1:
-    { rule = {name = "NixNote"},    -- Main window
-      properties = {tag = tags[1][3], floating = false } },
-    { rule = {name = "Database Password", class = "Qt Jambi application"},  -- Password prompt
-      properties = {tag = tags[1][3], floating = true } },
-    { rule = {name = "Qt Jambi application", class = "Qt Jambi application"}, -- Splash screen (sadly this uses standard Qt Jambi names, and could apply to pretty much anything...)
-      properties = {tag = tags[1][3], floating = true } },
+--  { rule = {name = "NixNote"},    -- Main window
+--    properties = {tag = tags[1][3], floating = false } },
+--  { rule = {name = "Database Password", class = "Qt Jambi application"},  -- Password prompt
+--    properties = {tag = tags[1][3], floating = true } },
+--  { rule = {name = "Qt Jambi application", class = "Qt Jambi application"}, -- Splash screen (sadly this uses standard Qt Jambi names, and could apply to pretty much anything...)
+--    properties = {tag = tags[1][3], floating = true } },
+    -- Shutter, should be floating so that it doesn't rearrange other windows.
+    { rule = {class = "Shutter" },
+      properties = { floating = true, opacity = 0.9 } },
+    -- Tomboy Notes (main window)
     { rule = {name = "Search All Notes", class = "Tomboy"},
       properties = {tag = tags[1][3], floating = false } },
-    -- Set Plot windows to always map on tag 5 on screen 1, 
-    { rule = { name = "Figure [0-9].*"},  --mainly ment for matlab but will probably mess some other stuff up, if this happens I could add some exception rules (see documentation for except() )
-      properties = { tag = tags[1][5], floating = false } },
-    { rule = { class = "Pybliographer" },   --referencer
-      properties = { tag = tags[1][6], floating = false } },
-    { rule = { name = "Error (pybliographer)" },    -- Apply this AFTER main rule for Pybliographer
-      properties = { floating = true }},
     -- Applications launched with '--name=set_on_tagX' should be put on tag X (command may vary)
     { rule = { instance = "set_on_s1t4"},
       properties = { tag = tags[1][4] } },
@@ -422,25 +435,39 @@ awful.rules.rules = {
     -- For Python development:
     { rule = { class = "Tk" },
       properties = { floating = true } },
+    -- Scientific Apps:
+    -- Set Plot windows to always map on tag 5 on screen 1, 
+    { rule = { name = "Figure [0-9].*"},  -- Works with e.g. matlab, python
+      properties = { tag = tags[1][5], floating = false } },
+    -- Bibliography manager:
+    { rule = { class = "Pybliographer" },   --referencer
+      properties = { tag = tags[1][6], floating = false } },
+    { rule = { name = "Error (pybliographer)" },    -- Apply this AFTER main rule for Pybliographer
+      properties = { floating = true }},
+    -- ncview:
+    { rule = { class = "Ncview" }, -- General (Main window + plots)
+      properties = { floating = true } },
+    { rule = { instance = "ncview" }, -- Main window
+      properties = { opacity = 0.8 } },
 -- For dual monitors (don't try to match these if less than 2 monitors are present!)
-  }
-  if  screen.count() > 1 then   -- For two or more screen we make additional rules
+}
+if  screen.count() > 1 then   -- For two or more screen we make additional rules
     nr = #awful.rules.rules   -- Current number of rules
     nr = nr+1                 -- Index for next rule
-    awful.rules.rules[nr] =                 -- Append new rule
-      { rule = { instance = "set_on_s2t1"}, --
-        properties = { tag = tags[2][1] } } --
+    awful.rules.rules[nr] = {               -- Append new rule
+          rule = { instance = "set_on_s2t1"}, --
+          properties = { tag = tags[2][1] } } --
     nr = nr+1                 -- Update index for next rule
-    awful.rules.rules[nr] =                 -- Append new rule
-      { rule = { instance = "set_on_s2t2"}, --
-        properties = { tag = tags[2][2] } } --
+    awful.rules.rules[nr] = {               -- Append new rule
+          rule = { instance = "set_on_s2t2"}, --
+          properties = { tag = tags[2][2] } } --
     nr = nr+1                 -- Update index for next rule
-    awful.rules.rules[nr] =                 -- Append new rule
-      { rule = { instance = "set_on_s2t3"}, --
+    awful.rules.rules[nr] = {               -- Append new rule
+        rule = { instance = "set_on_s2t3"}, --
         properties = { tag = tags[2][3] } } --
     nr = nr+1                 -- Update index for next rule
-    awful.rules.rules[nr] =                       -- Append new rule
-      { rule = { class = "Hamster-time-tracker" },--
+    awful.rules.rules[nr] = {                     -- Append new rule
+        rule = { class = "Hamster-time-tracker" },--
         properties = { tag = tags[2][3] } }       --
   end
 -- }}}
@@ -506,10 +533,11 @@ end
 -- pamon was messing up my system and kept writing to .xsession-errors at ~170 KB/s
 -- each line was filled with ~300 000 000 nonsense characters
 -- No issues noticed from this workaround
-awful.util.spawn_with_shell('killall pamon')
+--awful.util.spawn_with_shell('killall pamon')
 -- wait... I run this in ~/.Xsession for unlocking the login keyring?!
 -- maybe I should just dump all of it's output to /dev/null
--- or would that be stupid...?
+-- Correction: pamon is a pulse tool for audio playback (the log was being filled with raw audio)
+-- I removed pamon altogether from .Xsession, it shouldn't cause any problems
 
 -- Run dropbox without nautilus (installed to be used with nautilus)
 --  run_once("dropbox",nil,"~/.dropbox-dist/dropboxd")
@@ -517,19 +545,17 @@ run_once("dropbox","start")
 
 -- is pulseaudio run by another user? (error mes. recieved)
 --  run_once("pulseaudio")           -- the Pulse audio system
-run_once("conky")                   -- System monitor
---run_once("xfsettingsd")	          -- Handles themes, can also be configured manually
+--run_once("xfsettingsd")	          -- Launched by .Xsession instead
 run_once("nm-applet",nil,nil,1)		  -- Network manager applet
 --update-notifier		                -- Checks for updates (will crash the session!?)
---system-config-printer-applet	    -- System tray print job manager
+--system-config-printer-applet	    -- System tray print job manager (kde)
 run_once("blueman-applet",nil,nil,1)-- Managing bluetooth devices
 -- gnome-power-manager &            -- for laptops and stuff
 -- gnome-volume-manager &           -- for mounting CDs, USB sticks, and such
--- run_once("nixnote",nil,"/bin/sh /usr/bin/nixnote")  -- Run nixnote, found pname: ps -AF|grep nixnote -i (match with a ps -A)
-run_once("tomboy","--search",nil,1)                     -- Run note taking app
+run_once("export LANG=en_CA.utf8 && tomboy","--search","tomboy",1)                     -- Run note taking app
 run_once("~/bin/run_claws-mail.sh",nil,"claws-mail",1)  -- Run e-mail client
---run_once("/usr/bin/firefox",nil,"firefox")            -- Run browser
-run_once(wwwbrowser,nil,nil,1)                          -- Run browser
+--run_once("/usr/bin/firefox",nil,"firefox")            -- Run specific browser
+run_once(wwwbrowser,nil,nil,1)                          -- Run default browser
 run_once("~/bin/open_work.sh",nil,"open_work.sh",1)     -- Run Document stuff
 run_once("pybliographic","~/Documents/Shared/phd/bibliography.bib",
           "/usr/bin/pyblio",1)                          -- Referencer
@@ -543,6 +569,9 @@ if screen.count() == 1 then   -- Only one screen
             "sakura --name=set_on_s1t4" .. "&",nil,terminal)
   -- Launch file manager on screen 1 tag 9 (see rules)
   run_once( filemanager .. " --name=set_on_s1t9",nil,filemanager)  
+  -- Launch conky
+  awful.util.spawn_with_shell("conky --pause=10 &")
+run_once("conky -c ",nil,"conky")  -- System monitor
 
 -- In my ~/.Xsession I create the file /tmp/AWM
 -- the next line will try to remove this file, if succesful (ie the file exists)
@@ -568,8 +597,10 @@ elseif screen.count() > 1 and os.remove("/tmp/AWM") then  -- Two or more screens
   awful.util.spawn_with_shell( filemanager .." --name=set_on_s2t1",2)
   -- Launch time tracker on screen 2
   awful.util.spawn_with_shell( "hamster-time-tracker &",2)
+  -- Launch conky panels
+  awful.util.spawn_with_shell("conky -c ~/.conkyrc.dual_monitor --pause=10 &")
+  awful.util.spawn_with_shell("conky -c ~/.conkyrc_remote.dual_monitor --pause=10 &")
 end
-
 
 
 --- }}}
