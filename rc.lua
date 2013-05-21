@@ -393,6 +393,8 @@ awful.rules.rules = {
       properties = { floating = true } },
     { rule = { class = "Sozi.py" },
       properties = { floating = true } },
+    { rule = { class = "Gtk-recordMyDesktop" },
+      properties = { floating = true } },
     -- Setup Terminal Emulator
 --  { rule = { class = terminal },  -- If terminal name is the same as window class
     { rule = { class = "Sakura" },
@@ -451,7 +453,14 @@ awful.rules.rules = {
       properties = { opacity = 0.8 } },
 -- For dual monitors (don't try to match these if less than 2 monitors are present!)
 }
-if  screen.count() > 1 then   -- For two or more screen we make additional rules
+if screen.count() == 1 then   -- Rules specific to single monitor setup
+    nr = #awful.rules.rules   -- Current number of rules
+    nr = nr+1                 -- Index for next rules
+    awful.rules.rules[nr] = {                     -- Append new rule
+        rule = { class = "Hamster-time-tracker" },--
+        properties = { tag = tags[1][8] } }       --
+
+elseif  screen.count() > 1 then   -- Rules specific to dual monitor setup
     nr = #awful.rules.rules   -- Current number of rules
     nr = nr+1                 -- Index for next rule
     awful.rules.rules[nr] = {               -- Append new rule
@@ -561,7 +570,7 @@ run_once("pybliographic","~/Documents/Shared/phd/bibliography.bib",
           "/usr/bin/pyblio",1)                          -- Referencer
 
 -- Autostart applications specific to different screen setups
-if screen.count() == 1 then   -- Only one screen
+if screen.count() == 1 and os.remove("/tmp/AWM") then  -- Only one screen
   -- Launch 4 terminals on first screen (see rules)
   run_once( "sakura --name=set_on_s1t4" .. "&" ..
             "sakura --name=set_on_s1t4" .. "&" ..
@@ -569,6 +578,8 @@ if screen.count() == 1 then   -- Only one screen
             "sakura --name=set_on_s1t4" .. "&",nil,terminal)
   -- Launch file manager on screen 1 tag 9 (see rules)
   run_once( filemanager .. " --name=set_on_s1t9",nil,filemanager)  
+  -- Hamster time tracker
+  awful.util.spawn_with_shell( "hamster-time-tracker &")
   -- Launch conky
   awful.util.spawn_with_shell("conky --pause=10 &")
 run_once("conky -c ",nil,"conky")  -- System monitor
