@@ -83,6 +83,12 @@ for s = 1, screen.count() do
       tags[s] = awful.tag(tags.names, s, tags.layout)
     end
 end
+-- Special settings for tags
+awful.tag.viewonly(tags[1][7])  
+awful.tag.incmwfact(0.20, tags[1][1])
+
+awful.tag.viewonly(tags[1][1])  -- Select which tag to edit
+awful.tag.incmwfact(0.35, tags[1][1]) -- Move the master-slave divisor
 -- }}}
 
 -- {{{ Menu
@@ -101,13 +107,20 @@ myawesomemenu = {
 
 myappsmenu = {
    { "Claws Mail", "claws-mail", "/usr/share/pixmaps/claws-mail.png"},
+   { "Diana","diana","/usr/local/share/pixmaps/diana.png"},
    { "Firefox", "firefox", beautiful.menu_firefox_icon },
+   { "Screen Ruler","screenruler","/usr/share/pixmaps/screenruler.png"},
    { "Thunar Files", "thunar", beautiful.menu_files_icon },
    { "Tomboy Notes", "tomboy", "/usr/share/pixmaps/tomboy-32.xpm"}
+}
+mysysmenu = {
+  { "Disk Usage", "baobab", "/usr/share/pixmaps/baobab.xpm"},
+  { "Time and Date", "gksu system-config-date"}
 }
 
 mymainmenu = awful.menu({ items = { { "awesome", myawesomemenu, beautiful.awesome_icon },
                                     { "Applications", myappsmenu, beautiful.menu_apps_icon },
+                                    { "System Tools", mysysmenu, "/usr/share/pixmaps/synaptic.png" },
                                     { "Debian", debian.menu.Debian_menu.Debian, beautiful.menu_debian_icon },
                                     { "open terminal", terminal, beautiful.menu_terminal_icon }
                                   }
@@ -212,7 +225,10 @@ for s = 1, screen.count() do
                                           end, mytasklist.buttons)
 
     -- Create the wibox
-    mywibox[s] = awful.wibox({ position = "top", screen = s })
+    mywibox[s] = awful.wibox({ screen = s,
+      height = 18,
+      position = "top"
+    })
     -- Add widgets to the wibox - order matters
     mywibox[s].widgets = {
         {
@@ -385,12 +401,26 @@ awful.rules.rules = {
                      keys = clientkeys,
                      buttons = clientbuttons } },
     -- Application specific rules
+    --{ rule = { protocols = ".*WM_TAKE_FOCUS.*" }, --not working
+    --  properties = { floating = true } },
+    { rule = { class = "Diana.bin*" },
+      properties = { floating = true },
+      callback = function (c)
+        awful.placement.centered(c,nil)
+      end
+    },
+    { rule = { class = "feh" },
+      properties = { floating = true } },
+    { rule = { name = "ImageMagick" },
+      properties = { floating = true } },
     { rule = { class = "MPlayer" },
       properties = { floating = true } },
     { rule = { class = "pinentry" },
       properties = { floating = true } },
-    { rule = { class = "gimp" },
-      properties = { floating = true } },
+--    { rule = { class = "gimp" },
+--      properties = { floating = true } },
+    { rule = { class = "Gimp" }, except = { name = "GNU Image Manipulation Program" },
+      properties = { floating = true, ontop = true, opacity = 1.0} },
     { rule = { class = "Sozi.py" },
       properties = { floating = true } },
     { rule = { class = "Gtk-recordMyDesktop" },
@@ -409,6 +439,8 @@ awful.rules.rules = {
       properties = { floating = true } },
     { rule = { class = "Firefox", name = "Downloads" }, --download window
       properties = {}, callback = awful.client.setslave },
+    --{ rule = { class = "Firefox", name = ".*Properties.*" },  -- Consider windows with properites in name as floating
+    --  properties = { floating = true } }, -- not working
     -- Set Claws to always map on tag 1 of screen 1, and disable float
     { rule = {class = "Claws-mail", role = "mainwindow"}, -- role option doesn't work...
       properties = {tag = tags[1][2], floating = false } },
@@ -427,6 +459,9 @@ awful.rules.rules = {
     -- Tomboy Notes (main window)
     { rule = {name = "Search All Notes", class = "Tomboy"},
       properties = {tag = tags[1][3], floating = false } },
+    -- conky (was having problems with it only showing on single tag..)
+    { rule = { class = "Conky" },
+      properties = { sticky = true } },
     -- Applications launched with '--name=set_on_tagX' should be put on tag X (command may vary)
     { rule = { instance = "set_on_s1t4"},
       properties = { tag = tags[1][4] } },
@@ -451,15 +486,36 @@ awful.rules.rules = {
       properties = { floating = true } },
     { rule = { instance = "ncview" }, -- Main window
       properties = { opacity = 0.8 } },
--- For dual monitors (don't try to match these if less than 2 monitors are present!)
+    -- Screen Ruler:
+    { rule = { name = "Screen Ruler" }, -- On-screen ruler
+      properties = {
+        border_width = 0,
+        focus = false,
+        ontop = true,
+        opacity = 0.7,
+        floating =true  } },
 }
 if screen.count() == 1 then   -- Rules specific to single monitor setup
     nr = #awful.rules.rules   -- Current number of rules
     nr = nr+1                 -- Index for next rules
     awful.rules.rules[nr] = {                     -- Append new rule
         rule = { class = "Hamster-time-tracker" },--
-        properties = { tag = tags[1][8] } }       --
-
+        --properties = { tag = tags[1][8] } }       --
+        properties = {
+          floating = true,
+          sticky=true,
+          border_width = 0,
+          focus = false,
+          ontop = true,
+          opacity = 0.9 },
+          callback = function(c)
+            local screengeom = screen[mouse.screen].workarea
+            local width  = math.floor(math.max(screengeom.width*0.25,650))
+            local height = math.floor(math.max(screengeom.height*0.40,350))
+            local x = screengeom.width-width
+            local y = mywibox[mouse.screen].height  -- Panel height (assume top panel)
+            c:geometry({ x=x, y=y, width = width, height = height })
+          end }
 elseif  screen.count() > 1 then   -- Rules specific to dual monitor setup
     nr = #awful.rules.rules   -- Current number of rules
     nr = nr+1                 -- Index for next rule
@@ -581,8 +637,10 @@ if screen.count() == 1 and os.remove("/tmp/AWM") then  -- Only one screen
   -- Hamster time tracker
   awful.util.spawn_with_shell( "hamster-time-tracker &")
   -- Launch conky
-  awful.util.spawn_with_shell("conky --pause=10 &")
-run_once("conky -c ",nil,"conky")  -- System monitor
+  --awful.util.spawn_with_shell("conky --pause=10 &")
+  awful.util.spawn("conky -c .conkyrc_main")
+  awful.util.spawn("conky -c .conkyrc_remote.single_monitor")
+--run_once("conky -c ",nil,"conky")  -- System monitor
 
 -- In my ~/.Xsession I create the file /tmp/AWM
 -- the next line will try to remove this file, if succesful (ie the file exists)
