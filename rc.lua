@@ -462,6 +462,12 @@ awful.rules.rules = {
     -- conky (was having problems with it only showing on single tag..)
     { rule = { class = "Conky" },
       properties = { sticky = true } },
+    { rule = { class = "KeePass2" },
+      properties = { floating = true,
+                     opacity = 0.9,
+                     ontop = true,
+                     sticky = true,
+                      border_width = 0 } },
     -- Applications launched with '--name=set_on_tagX' should be put on tag X (command may vary)
     { rule = { instance = "set_on_s1t4"},
       properties = { tag = tags[1][4] } },
