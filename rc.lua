@@ -48,8 +48,8 @@ layouts = {
     awful.layout.suit.floating, --1
     awful.layout.suit.tile, --2
 --    awful.layout.suit.tile.left,
-    awful.layout.suit.tile.bottom, --3
---    awful.layout.suit.tile.top,
+--    awful.layout.suit.tile.bottom,
+    awful.layout.suit.tile.top, --3
     awful.layout.suit.fair, --4
     awful.layout.suit.fair.horizontal, --5
 --    awful.layout.suit.spiral,
@@ -440,13 +440,18 @@ awful.rules.rules = {
       properties = { floating = true } },
     { rule = { class = "Firefox", name = "Downloads" }, --download window
       properties = {}, callback = awful.client.setslave },
-    --{ rule = { class = "Firefox", name = ".*Properties.*" },  -- Consider windows with properites in name as floating
+    --{ rule = { class = "Firefox", name = ".*Properties.*" },  -- Consider windows with properties in name as floating
     --  properties = { floating = true } }, -- not working
     -- Set Claws to always map on tag 1 of screen 1, and disable float
-    { rule = {class = "Claws-mail", role = "mainwindow"}, -- role option doesn't work...
-      properties = {tag = tags[1][2], floating = false } },
-    { rule = {class = "Claws-mail", role ~= "mainwindow"}, -- role option doesn-t work...
-      properties = { floating = true } },
+    { rule = {class = "Claws-mail"},    -- All claws-mail windows should map here
+      properties = {tag = tags[1][2], floating = false} },  
+    { rule = { {class = "Claws-mail"} },  -- All claws-mail windows except the main window are slaves
+      except = {role = "mainwindow"},
+      callback = awful.client.setslave },
+    --{ rule = {class = "Claws-mail", role = "mainwindow"}, -- role option works
+    --  properties = {tag = tags[1][2], floating = true } },
+    --{ rule = {class = "Claws-mail", role ~= "mainwindow"}, -- not equal doesn't work
+    --  properties = { floating = true, opacity =0.9 } },
     -- Set NixNote to always map on tag 3 screen 1:
 --  { rule = {name = "NixNote"},    -- Main window
 --    properties = {tag = tags[1][3], floating = false } },
@@ -455,8 +460,8 @@ awful.rules.rules = {
 --  { rule = {name = "Qt Jambi application", class = "Qt Jambi application"}, -- Splash screen (sadly this uses standard Qt Jambi names, and could apply to pretty much anything...)
 --    properties = {tag = tags[1][3], floating = true } },
     -- Shutter, should be floating so that it doesn't rearrange other windows.
-    { rule = {class = "Shutter" },
-      properties = { floating = true, opacity = 0.9 } },
+    --{ rule = {class = "Shutter" },
+    --  properties = { floating = true, opacity = 0.9 } },
     -- Tomboy Notes (main window)
     { rule = {name = "Search All Notes", class = "Tomboy"},
       properties = {tag = tags[1][3], floating = false } },
@@ -468,7 +473,8 @@ awful.rules.rules = {
     { rule_any = { class = {"KeePass2",
                             "Ubuntuone-installer",
                             "Ubuntu-sso-login-qt",
-                            "SpiderOak" },
+                            "SpiderOak",
+                            "Shutter"},
                    name  = {"Import File/Data"} },
       properties = { floating = true,
                      opacity = 0.9,
