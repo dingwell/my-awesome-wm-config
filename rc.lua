@@ -443,7 +443,10 @@ awful.rules.rules = {
     --{ rule = { class = "Firefox", name = ".*Properties.*" },  -- Consider windows with properties in name as floating
     --  properties = { floating = true } }, -- not working
     -- Set Claws to always map on tag 1 of screen 1, and disable float
+    { rule = {class = "Claws-mail"},    -- Default rule for claws mail (anything not covered by other rules)
+      properties = {floating = true} },  
     { rule = {class = "Claws-mail"},    -- All claws-mail windows should map here
+      except_any = { role = {"prefs"}, type = {"dialog"} }, -- except most dialogues and preferences windows
       properties = {tag = tags[1][2], floating = false} },  
     { rule = {class = "Claws-mail"},  -- All claws-mail windows except the main window are slaves
       except = {role = "mainwindow"},
