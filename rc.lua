@@ -448,10 +448,6 @@ awful.rules.rules = {
     { rule = { {class = "Claws-mail"} },  -- All claws-mail windows except the main window are slaves
       except = {role = "mainwindow"},
       callback = awful.client.setslave },
-    --{ rule = {class = "Claws-mail", role = "mainwindow"}, -- role option works
-    --  properties = {tag = tags[1][2], floating = true } },
-    --{ rule = {class = "Claws-mail", role ~= "mainwindow"}, -- not equal doesn't work
-    --  properties = { floating = true, opacity =0.9 } },
     -- Set NixNote to always map on tag 3 screen 1:
 --  { rule = {name = "NixNote"},    -- Main window
 --    properties = {tag = tags[1][3], floating = false } },
@@ -459,9 +455,6 @@ awful.rules.rules = {
 --    properties = {tag = tags[1][3], floating = true } },
 --  { rule = {name = "Qt Jambi application", class = "Qt Jambi application"}, -- Splash screen (sadly this uses standard Qt Jambi names, and could apply to pretty much anything...)
 --    properties = {tag = tags[1][3], floating = true } },
-    -- Shutter, should be floating so that it doesn't rearrange other windows.
-    --{ rule = {class = "Shutter" },
-    --  properties = { floating = true, opacity = 0.9 } },
     -- Tomboy Notes (main window)
     { rule = {name = "Search All Notes", class = "Tomboy"},
       properties = {tag = tags[1][3], floating = false } },
@@ -623,15 +616,6 @@ end
 
 -- {{{ Autostart applications
 
--- pamon was messing up my system and kept writing to .xsession-errors at ~170 KB/s
--- each line was filled with ~300 000 000 nonsense characters
--- No issues noticed from this workaround
---awful.util.spawn_with_shell('killall pamon')
--- wait... I run this in ~/.Xsession for unlocking the login keyring?!
--- maybe I should just dump all of it's output to /dev/null
--- Correction: pamon is a pulse tool for audio playback (the log was being filled with raw audio)
--- I removed pamon altogether from .Xsession, it shouldn't cause any problems
-
 -- Run dropbox without nautilus (installed to be used with nautilus)
 --  run_once("dropbox",nil,"~/.dropbox-dist/dropboxd")
 run_once("dropbox","start")
@@ -707,7 +691,10 @@ end
 --- }}}
 
 --- {{{ Autostop applications
--- todo add backup scripts to be run on exit
+-- todo add backup scripts to be run on exit --Nope! I put this as a bunch of cron jobs instead, 
+--  the shutdown process in awesome is rather reckless, so I replaced it with a custom shell script.
+--  Attempting to do back-ups at exit seem insecure, the few times I've had AWM crash has been when
+--  trying to shut down!
 -- Backup Documents and bin directories:
 --awesome.add_signal("exit",function() awful.util.spawn("autostop.sh") end)
 -- I do not use this since awesome quits too fast for the script to finish, instead I replaced the awesome quit commands in this file. (i.e. the hotkey AND the menu entry
