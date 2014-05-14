@@ -445,7 +445,7 @@ awful.rules.rules = {
     -- Set Claws to always map on tag 1 of screen 1, and disable float
     { rule = {class = "Claws-mail"},    -- All claws-mail windows should map here
       properties = {tag = tags[1][2], floating = false} },  
-    { rule = { {class = "Claws-mail"} },  -- All claws-mail windows except the main window are slaves
+    { rule = {class = "Claws-mail"},  -- All claws-mail windows except the main window are slaves
       except = {role = "mainwindow"},
       callback = awful.client.setslave },
     -- Set NixNote to always map on tag 3 screen 1:
