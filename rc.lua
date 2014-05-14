@@ -48,14 +48,14 @@ layouts = {
     awful.layout.suit.floating, --1
     awful.layout.suit.tile, --2
 --    awful.layout.suit.tile.left,
---    awful.layout.suit.tile.bottom,
+    awful.layout.suit.tile.bottom, --3
 --    awful.layout.suit.tile.top,
-    awful.layout.suit.fair, --3
-    awful.layout.suit.fair.horizontal, --4
+    awful.layout.suit.fair, --4
+    awful.layout.suit.fair.horizontal, --5
 --    awful.layout.suit.spiral,
 --    awful.layout.suit.spiral.dwindle,
 --    awful.layout.suit.max,
-    awful.layout.suit.max.fullscreen, --5
+    awful.layout.suit.max.fullscreen, --6
 --    awful.layout.suit.magnifier
 }
 -- }}}
@@ -66,7 +66,7 @@ tags = {
   -- Used for defaults and screen 1:
   names   = { "1-W ", "2-@ ", "3-N ", "4-# ", "5-F ",
   	          "-6-", "-7-", "-8-", "-9-" },
-  layout    = { layouts[2], layouts[2], layouts[2],layouts[4], layouts[4],
+  layout    = { layouts[2], layouts[3], layouts[2],layouts[5], layouts[5],
   	            layouts[2], layouts[2], layouts[2], layouts[2] },
   -- Used for screen 2:
   names2  = { "1-FM ", "2-# ", "-3-" },
@@ -109,6 +109,7 @@ myappsmenu = {
    { "Claws Mail", "claws-mail", "/usr/share/pixmaps/claws-mail.png"},
    { "Diana","diana","/usr/local/share/pixmaps/diana.png"},
    { "Firefox", "firefox", beautiful.menu_firefox_icon },
+   { "KeePass2 (USB)","external_keepass.sh","/usr/share/pixmaps/keepass2.png"},
    { "Screen Ruler","screenruler","/usr/share/pixmaps/screenruler.png"},
    { "Thunar Files", "thunar", beautiful.menu_files_icon },
    { "Tomboy Notes", "tomboy", "/usr/share/pixmaps/tomboy-32.xpm"}
@@ -463,14 +464,16 @@ awful.rules.rules = {
     { rule = { class = "Conky" },
       properties = { sticky = true } },
     --{ rule = { class = "KeePass2" },
--- STICKY FLOATING WINDOWS (FOR APPS MINIMIZED TO INDICATOR AREA)
+-- FLOATING WINDOWS (FOR APPS MINIMIZED TO INDICATOR AREA)
     { rule_any = { class = {"KeePass2",
                             "Ubuntuone-installer",
-                            "Ubuntu-sso-login-qt" } },
+                            "Ubuntu-sso-login-qt",
+                            "SpiderOak" },
+                   name  = {"Import File/Data"} },
       properties = { floating = true,
                      opacity = 0.9,
                      ontop = true,
-                     sticky = true,
+                     --sticky = true,
                       border_width = 0 },
                       callback = function(c)
                         local screengeom = screen[mouse.screen].workarea
@@ -626,6 +629,7 @@ end
 -- Run dropbox without nautilus (installed to be used with nautilus)
 --  run_once("dropbox",nil,"~/.dropbox-dist/dropboxd")
 run_once("dropbox","start")
+run_once("SpiderOak",nil,nil,1)
 
 -- is pulseaudio run by another user? (error mes. recieved)
 --  run_once("pulseaudio")           -- the Pulse audio system
@@ -661,7 +665,7 @@ if screen.count() == 1 and os.remove("/tmp/AWM") then  -- Only one screen
   --awful.util.spawn_with_shell("conky --pause=10 &")
   awful.util.spawn("conky -c .conkyrc_main")
   awful.util.spawn("conky -c .conkyrc_remote.single_monitor")
-  awful.util.spawn("ubuntuone-control-panel-qt --with-icon") -- U1 sync tool
+  awful.util.spawn("ubuntuone-control-panel-qt --with-icon --minimized") -- U1 sync tool
 --run_once("conky -c ",nil,"conky")  -- System monitor
 
 -- In my ~/.Xsession I create the file /tmp/AWM
