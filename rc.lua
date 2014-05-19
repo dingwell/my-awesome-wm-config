@@ -112,7 +112,8 @@ myappsmenu = {
    { "KeePass2 (USB)","external_keepass.sh","/usr/share/pixmaps/keepass2.png"},
    { "Screen Ruler","screenruler","/usr/share/pixmaps/screenruler.png"},
    { "Thunar Files", "thunar", beautiful.menu_files_icon },
-   { "Tomboy Notes", "tomboy", "/usr/share/pixmaps/tomboy-32.xpm"}
+   { "Zim Notes", "zim", "/usr/share/pixmaps/zim.png"}
+   --{ "Tomboy Notes", "tomboy", "/usr/share/pixmaps/tomboy-32.xpm"}
 }
 mysysmenu = {
   { "Disk Usage", "baobab", "/usr/share/pixmaps/baobab.xpm"},
@@ -445,7 +446,7 @@ awful.rules.rules = {
     -- Set Claws to always map on tag 1 of screen 1, and disable float
     { rule = {class = "Claws-mail"},    -- Default rule for claws mail (anything not covered by other rules)
       properties = {floating = true} },  
-    { rule = {class = "Claws-mail"},    -- All claws-mail windows should map here
+    { rule = {class = "Claws-mail"},    -- All claws-mail windows we want to tile
       except_any = { role = {"prefs"}, type = {"dialog"} }, -- except most dialogues and preferences windows
       properties = {tag = tags[1][2], floating = false} },  
     { rule = {class = "Claws-mail"},  -- All claws-mail windows except the main window are slaves
@@ -460,6 +461,8 @@ awful.rules.rules = {
 --    properties = {tag = tags[1][3], floating = true } },
     -- Tomboy Notes (main window)
     { rule = {name = "Search All Notes", class = "Tomboy"},
+      properties = {tag = tags[1][3], floating = false } },
+    { rule = {name = "Zim notebook - Zim"},
       properties = {tag = tags[1][3], floating = false } },
     -- conky (was having problems with it only showing on single tag..)
     { rule = { class = "Conky" },
@@ -633,6 +636,7 @@ run_once("nm-applet",nil,nil,1)		  -- Network manager applet
 run_once("blueman-applet",nil,nil,1)-- Managing bluetooth devices
 -- gnome-power-manager &            -- for laptops and stuff
 -- gnome-volume-manager &           -- for mounting CDs, USB sticks, and such
+run_once("zim",nil,"zim",1)
 run_once("export LANG=en_CA.utf8 && tomboy","--search","tomboy",1)                     -- Run note taking app
 run_once("~/bin/run_claws-mail.sh",nil,"claws-mail",1)  -- Run e-mail client
 --run_once("/usr/bin/firefox",nil,"firefox")            -- Run specific browser
