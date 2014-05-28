@@ -464,11 +464,20 @@ awful.rules.rules = {
       properties = {tag = tags[1][3], floating = false } },
     { rule = {name = "Zim notebook - Zim"},
       properties = {tag = tags[1][3], floating = false } },
-    -- conky (was having problems with it only showing on single tag..)
+    { rule = {name = "zyGrib"},
+      properties = { floating = false } },
     { rule = { class = "Conky" },
       properties = { sticky = true } },
-    --{ rule = { class = "KeePass2" },
--- FLOATING WINDOWS (FOR APPS MINIMIZED TO INDICATOR AREA)
+-- FLOATING WINDOWS (for dialogs: centered on workspace)
+    { rule_any = { name = {"Choose",
+                           "Open"} },
+      properties = { floating = true,
+                      opacity = 0.9,
+                      ontop = true},
+      callback = function(c)
+        awful.placement.centered(c,nil)
+      end },
+-- FLOATING WINDOWS (for apps in the indicator field: upper right corner)
     { rule_any = { class = {"KeePass2",
                             "Ubuntuone-installer",
                             "Ubuntu-sso-login-qt",
@@ -480,14 +489,14 @@ awful.rules.rules = {
                      ontop = true,
                      --sticky = true,
                       border_width = 0 },
-                      callback = function(c)
-                        local screengeom = screen[mouse.screen].workarea
-                        local width  = math.floor(math.max(screengeom.width*0.25,650))
-                        local height = math.floor(math.max(screengeom.height*0.40,350))
-                        local x = screengeom.width-width
-                        local y = mywibox[mouse.screen].height  -- Panel height (assume top panel)
-                        c:geometry({ x=x, y=y, width = width, height = height })
-                      end },
+      callback = function(c)
+        local screengeom = screen[mouse.screen].workarea
+        local width  = math.floor(math.max(screengeom.width*0.25,650))
+        local height = math.floor(math.max(screengeom.height*0.40,350))
+        local x = screengeom.width-width
+        local y = mywibox[mouse.screen].height  -- Panel height (assume top panel)
+        c:geometry({ x=x, y=y, width = width, height = height })
+      end },
 
     -- Applications launched with '--name=set_on_tagX' should be put on tag X (command may vary)
     { rule = { instance = "set_on_s1t4"},
