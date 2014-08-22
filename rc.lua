@@ -460,9 +460,8 @@ awful.rules.rules = {
 --  { rule = {name = "Qt Jambi application", class = "Qt Jambi application"}, -- Splash screen (sadly this uses standard Qt Jambi names, and could apply to pretty much anything...)
 --    properties = {tag = tags[1][3], floating = true } },
     -- Tomboy Notes (main window)
-    { rule = {name = "Search All Notes", class = "Tomboy"},
-      properties = {tag = tags[1][3], floating = false } },
-    { rule = {name = "Zim notebook - Zim"},
+    { rule_any = {  class = {"Tomboy"},
+                    name  = {"Zim notebook - Zim"} },
       properties = {tag = tags[1][3], floating = false } },
     { rule = {name = "zyGrib"},
       properties = { floating = false } },
@@ -470,7 +469,8 @@ awful.rules.rules = {
       properties = { sticky = true } },
 -- FLOATING WINDOWS (for dialogs: centered on workspace)
     { rule_any = { name = {"Choose",
-                           "Open"} },
+                           "Open",
+                           "cryptkeeper"} },
       properties = { floating = true,
                       opacity = 0.9,
                       ontop = true},
@@ -634,7 +634,7 @@ end
 -- Run dropbox without nautilus (installed to be used with nautilus)
 --  run_once("dropbox",nil,"~/.dropbox-dist/dropboxd")
 run_once("dropbox","start")
-run_once("SpiderOak",nil,nil,1)
+--run_once("SpiderOak",nil,nil,1)  -- removed until it is working again
 
 -- is pulseaudio run by another user? (error mes. recieved)
 --  run_once("pulseaudio")           -- the Pulse audio system
@@ -646,7 +646,7 @@ run_once("blueman-applet",nil,nil,1)-- Managing bluetooth devices
 -- gnome-power-manager &            -- for laptops and stuff
 -- gnome-volume-manager &           -- for mounting CDs, USB sticks, and such
 run_once("zim",nil,"zim",1)
-run_once("export LANG=en_CA.utf8 && tomboy","--search","tomboy",1)                     -- Run note taking app
+-- run_once("export LANG=en_CA.utf8 && tomboy","--search","tomboy",1)                     -- Run note taking app
 run_once("~/bin/run_claws-mail.sh",nil,"claws-mail",1)  -- Run e-mail client
 --run_once("/usr/bin/firefox",nil,"firefox")            -- Run specific browser
 run_once(wwwbrowser,nil,nil,1)                          -- Run default browser
