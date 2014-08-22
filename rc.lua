@@ -470,7 +470,8 @@ awful.rules.rules = {
 -- FLOATING WINDOWS (for dialogs: centered on workspace)
     { rule_any = { name = {"Choose",
                            "Open",
-                           "cryptkeeper"} },
+                           "cryptkeeper",
+                           "Mount stash"} },
       properties = { floating = true,
                       opacity = 0.9,
                       ontop = true},
