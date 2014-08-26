@@ -162,6 +162,26 @@ mytextclock = awful.widget.textclock({ align = "right" })
 -- Create a systray
 mysystray = widget({ type = "systray" })
 
+-- Create a keyboard layout switcher
+--kbdcfg = {}
+--kbdcfg.cmd = "setxkbmap"
+--kbdcfg.layout = { "se", "se -variant dvorak" }  -- argument to set layout
+--kbdcfg.name = { "SE", "DV" }  -- Short name for display only
+--kbdcfg.current = 1  -- se is our default layout
+--kbdcfg.widget = widget({ type = "textbox", align = "right" })
+--kbdcfg.widget.text = " " .. kbdcfg.name[kbdcfg.current] .. " "
+--kbdcfg.switch = function ()
+--  kbdcfg.current = kbdcfg.current % #(kbdcfg.layout) + 1
+--  local t = " " .. kbdcfg.layout[kbdcfg.current] .. " "
+--  kbdcfg.widget.text = " " .. kbdcfg.name[kbdcfg.current] .. " "
+--  os.execute( kbdcfg.cmd .. t )
+--end
+
+---- Mouse bindings for keyboard layout switcher
+--kbdcfg.widget:buttons(awful.util.table.join(
+--awful.button({ }, 1, function () kbdcfg.switch() end)
+--))
+
 -- Create a wibox for each screen and add it
 mywibox = {}
 mypromptbox = {}
@@ -186,7 +206,7 @@ mytasklist.buttons = awful.util.table.join(
                                                   end
                                                   -- This will also un-minimize
                                                   -- the client, if needed
-                                                  client.focus = c
+                                                client.focus = c
                                                   c:raise()
                                               end
                                           end),
@@ -242,6 +262,7 @@ for s = 1, screen.count() do
         mylayoutbox[s],
         mytextclock,
 	s == 1 and mysystray or nil,
+  --kbdcfg.widget,
 	upicon,
 	netwidget,  
 	dnicon,
@@ -467,9 +488,31 @@ awful.rules.rules = {
       properties = { floating = false } },
     { rule = { class = "Conky" },
       properties = { sticky = true } },
+    -- Scientific Apps:
+    -- Set Plot windows to always map on tag 5 on screen 1, 
+    { rule = { name = "Figure [0-9].*"},  -- Works with e.g. matlab, python
+      properties = { tag = tags[1][5], floating = false } },
+    -- Bibliography manager:
+    { rule = { class = "Pybliographer" },   --referencer
+      properties = { tag = tags[1][6], floating = false } },
+    -- ncview:
+    { rule = { class = "Ncview" }, -- General (Main window + plots)
+      properties = { floating = true } },
+    { rule = { instance = "ncview" }, -- Main window
+      properties = { opacity = 0.8 } },
+    -- Screen Ruler:
+    { rule = { name = "Screen Ruler" }, -- On-screen ruler
+      properties = {
+        border_width = 0,
+        focus = false,
+        ontop = true,
+        opacity = 0.7,
+        floating =true } },
 -- FLOATING WINDOWS (for dialogs: centered on workspace)
     { rule_any = { name = {"Choose",
+                           "Error (pybliographer)",
                            "Open",
+                           "Open file",
                            "cryptkeeper",
                            "Mount stash"} },
       properties = { floating = true,
@@ -509,28 +552,6 @@ awful.rules.rules = {
     -- For Python development:
     { rule = { class = "Tk" },
       properties = { floating = true } },
-    -- Scientific Apps:
-    -- Set Plot windows to always map on tag 5 on screen 1, 
-    { rule = { name = "Figure [0-9].*"},  -- Works with e.g. matlab, python
-      properties = { tag = tags[1][5], floating = false } },
-    -- Bibliography manager:
-    { rule = { class = "Pybliographer" },   --referencer
-      properties = { tag = tags[1][6], floating = false } },
-    { rule = { name = "Error (pybliographer)" },    -- Apply this AFTER main rule for Pybliographer
-      properties = { floating = true }},
-    -- ncview:
-    { rule = { class = "Ncview" }, -- General (Main window + plots)
-      properties = { floating = true } },
-    { rule = { instance = "ncview" }, -- Main window
-      properties = { opacity = 0.8 } },
-    -- Screen Ruler:
-    { rule = { name = "Screen Ruler" }, -- On-screen ruler
-      properties = {
-        border_width = 0,
-        focus = false,
-        ontop = true,
-        opacity = 0.7,
-        floating =true } },
 }
 if screen.count() == 1 then   -- Rules specific to single monitor setup
     nr = #awful.rules.rules   -- Current number of rules
@@ -632,29 +653,6 @@ end
 
 -- {{{ Autostart applications
 
--- Run dropbox without nautilus (installed to be used with nautilus)
---  run_once("dropbox",nil,"~/.dropbox-dist/dropboxd")
-run_once("dropbox","start")
---run_once("SpiderOak",nil,nil,1)  -- removed until it is working again
-
--- is pulseaudio run by another user? (error mes. recieved)
---  run_once("pulseaudio")           -- the Pulse audio system
---run_once("xfsettingsd")	          -- Launched by .Xsession instead
-run_once("nm-applet",nil,nil,1)		  -- Network manager applet
---update-notifier		                -- Checks for updates (will crash the session!?)
---system-config-printer-applet	    -- System tray print job manager (kde)
-run_once("blueman-applet",nil,nil,1)-- Managing bluetooth devices
--- gnome-power-manager &            -- for laptops and stuff
--- gnome-volume-manager &           -- for mounting CDs, USB sticks, and such
-run_once("zim",nil,"zim",1)
--- run_once("export LANG=en_CA.utf8 && tomboy","--search","tomboy",1)                     -- Run note taking app
-run_once("~/bin/run_claws-mail.sh",nil,"claws-mail",1)  -- Run e-mail client
---run_once("/usr/bin/firefox",nil,"firefox")            -- Run specific browser
-run_once(wwwbrowser,nil,nil,1)                          -- Run default browser
-run_once("~/bin/open_work.sh",nil,"open_work.sh",1)     -- Run Document stuff
-run_once("pybliographic","~/Documents/Shared/phd/bibliography.bib",
-          "/usr/bin/pyblio",1)                          -- Referencer
-
 -- Autostart applications specific to different screen setups
 --   Will only be executed if the file /tmp/AWM exists and can
 --   be removed (it should be generated by my ~./xinitrc )
@@ -668,18 +666,7 @@ if screen.count() == 1 and os.remove("/tmp/AWM") then  -- Only one screen
   run_once( filemanager .. " --name=set_on_s1t9",nil,filemanager)  
   -- Hamster time tracker
   awful.util.spawn_with_shell( "hamster-time-tracker &")
-  -- Launch conky
-  --awful.util.spawn_with_shell("conky --pause=10 &")
-  awful.util.spawn("conky -c .conkyrc_main")
-  awful.util.spawn("conky -c .conkyrc_remote.single_monitor")
-  awful.util.spawn("ubuntuone-control-panel-qt --with-icon --minimized") -- U1 sync tool
---run_once("conky -c ",nil,"conky")  -- System monitor
 
--- In my ~/.Xsession I create the file /tmp/AWM
--- the next line will try to remove this file, if succesful (ie the file exists)
--- it returns a 'true' value required to enter the elseif section
--- When awesome restart without restarting the entire X-session this file 
--- will already be deleted and os.remove will return false
 elseif screen.count() > 1 and os.remove("/tmp/AWM") then  -- Two or more screens
   -- Launch 4 terminals on first screen (see rules)
   awful.util.spawn_with_shell( 
@@ -699,20 +686,11 @@ elseif screen.count() > 1 and os.remove("/tmp/AWM") then  -- Two or more screens
   awful.util.spawn_with_shell( filemanager .." --name=set_on_s2t1",2)
   -- Launch time tracker on screen 2
   awful.util.spawn_with_shell( "hamster-time-tracker &",2)
-  -- Launch conky panels
-  awful.util.spawn_with_shell("conky -c ~/.conkyrc.dual_monitor --pause=10 &")
-  awful.util.spawn_with_shell("conky -c ~/.conkyrc_remote.dual_monitor --pause=10 &")
 end
 
 
 --- }}}
 
 --- {{{ Autostop applications
--- todo add backup scripts to be run on exit --Nope! I put this as a bunch of cron jobs instead, 
---  the shutdown process in awesome is rather reckless, so I replaced it with a custom shell script.
---  Attempting to do back-ups at exit seem insecure, the few times I've had AWM crash has been when
---  trying to shut down!
--- Backup Documents and bin directories:
---awesome.add_signal("exit",function() awful.util.spawn("autostop.sh") end)
--- I do not use this since awesome quits too fast for the script to finish, instead I replaced the awesome quit commands in this file. (i.e. the hotkey AND the menu entry
+-- I do not use this since awesome quits too fast for the script to finish, instead I replaced the awesome quit commands in this file. (i.e. the hotkey AND the menu entry) to launch a bash script which will attempt to gracefully quit any applications spawned under the window manager (if someone is interested in this, let me know)
 --- }}}
