@@ -154,7 +154,7 @@ dnicon.image = image(beautiful.widget_net)
 upicon.image = image(beautiful.widget_netup)
 
 --Register widget
-vicious.register(netwidget, vicious.widgets.net, '<span color="#CC9393">${eth0 down_kb}</span> <span color="#7F9F7F">${eth0 up_kb}</span>', 3)
+vicious.register(netwidget, vicious.widgets.net, '<span color="#CC9393">${eth0 down_mb}</span> <span color="#7F9F7F">${eth0 up_mb}</span>', 3)
 
 -- Create a textclock widget
 mytextclock = awful.widget.textclock({ align = "right" })
@@ -490,7 +490,8 @@ awful.rules.rules = {
       properties = { sticky = true } },
     -- Scientific Apps:
     -- Set Plot windows to always map on tag 5 on screen 1, 
-    { rule = { name = "Figure [0-9].*"},  -- Works with e.g. matlab, python
+    { rule_any = { name   = {"Figure [0-9].*"},  -- Works with e.g. matlab, python
+                   class  = {"Octave"} },
       properties = { tag = tags[1][5], floating = false } },
     -- Bibliography manager:
     { rule = { class = "Pybliographer" },   --referencer
@@ -557,7 +558,7 @@ if screen.count() == 1 then   -- Rules specific to single monitor setup
     nr = #awful.rules.rules   -- Current number of rules
     nr = nr+1                 -- Index for next rules
     awful.rules.rules[nr] = {                     -- Append new rule
-        rule = { class = "Hamster-time-tracker" },--
+        rule = { class = "Hamster-.*" },--
         --properties = { tag = tags[1][8] } }       --
         properties = {
           floating = true,
@@ -590,7 +591,7 @@ elseif  screen.count() > 1 then   -- Rules specific to dual monitor setup
         properties = { tag = tags[2][3] } } --
     nr = nr+1                 -- Update index for next rule
     awful.rules.rules[nr] = {                     -- Append new rule
-        rule = { class = "Hamster-time-tracker" },--
+        rule = { class = "Hamster-.*" },--
         properties = { tag = tags[2][3] } }       --
   end
 -- }}}
