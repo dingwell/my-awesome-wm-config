@@ -456,11 +456,10 @@ awful.rules.rules = {
     -- Setup Firefox
     { rule = { class = "Firefox", instance = "Navigator" }, -- Main window
       properties = { tag = tags[1][1], floating = false } },
-    { rule_any = { name = "Enter name of file to save to...",
-                   instance = "Dialog" }, --Save file dialog
+    { rule = { name = "Enter name of file to save to..." }, --Save file dialog
       properties = { floating = true } },
-    --{ rule = { class = "Firefox", instance = "Dialog" },  -- other dialogs (add class firefox to rules?)
-    --  properties = { floating = true } },
+    { rule = { class = "Firefox", instance = "Dialog" },  -- other dialogs (add class firefox to rules?)
+      properties = { floating = true } },
     { rule = { class = "Firefox", name = "Downloads" }, --download window
       properties = {}, callback = awful.client.setslave },
     --{ rule = { class = "Firefox", name = ".*Properties.*" },  -- Consider windows with properties in name as floating
@@ -516,8 +515,7 @@ awful.rules.rules = {
                            "Open",
                            "Open file",
                            "cryptkeeper",
-                           "Mount stash",
-                           "File Operation Progress"} },
+                           "Mount stash"} },
       properties = { floating = true,
                       opacity = 0.9,
                       ontop = true},
@@ -529,9 +527,9 @@ awful.rules.rules = {
                             "Ubuntuone-installer",
                             "Ubuntu-sso-login-qt",
                             "SpiderOak",
-                            "Shutter"},
-                   name  = {"Import File/Data",
-                            "Create New Password Database"} },
+                            "Shutter",
+                            "Gtg"},
+                   name  = {"Import File/Data"} },
       properties = { floating = true,
                      opacity = 0.9,
                      ontop = true,
