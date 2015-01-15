@@ -10,7 +10,7 @@ require("awful.rules")
 require("beautiful")          -- Theme handling library
 require("naughty")            -- Notification library
 require("vicious")            -- Widgets library (basic)
-require("menubar")            -- (custom) dmenu-like freedesktop.menu (remove?)
+--require("menubar")            -- (custom) dmenu-like freedesktop.menu (remove?)
 require("debian.menu")        -- Load Debian menu entries
 
 -- {{{ Variable definitions
@@ -133,15 +133,15 @@ mylauncher = awful.widget.launcher({ image = image(beautiful.awesome_icon),
 -- }}}
 
 -- {{{ Menubar
-menubar.cache_entries = true   -- Cache entire tree on firt run (faster searching, must be updated manually)
-menubar.app_folders = { "/usr/share/applications/" }
-menubar.show_categories = true   -- Change to false if you want only programs to appear in the menu
+--menubar.cache_entries = true   -- Cache entire tree on firt run (faster searching, must be updated manually)
+--menubar.app_folders = { "/usr/share/applications/" }
+--menubar.show_categories = true   -- Change to false if you want only programs to appear in the menu
 
 -- menubar doesn't read the index.theme tables but assumes themes are in /usr/share/icons/
 -- and hold the structure .../size/category (some themes use .../category/size)
 --menubar.set_icon_theme("Drakfire Evolution Inverted (custom)")
 --menubar.set_icon_theme("Humanity")
-menubar.set_icon_theme("gnome")
+--menubar.set_icon_theme("gnome")
 
 -- {{{ Wibox
 
@@ -341,8 +341,8 @@ globalkeys = awful.util.table.join(
                   mypromptbox[mouse.screen].widget,
                   awful.util.eval, nil,
                   awful.util.getdir("cache") .. "/history_eval")
-              end),
-     awful.key({ modkey }, "s", function () menubar.show() end)
+              end)
+     --awful.key({ modkey }, "s", function () menubar.show() end)
 )
 
 clientkeys = awful.util.table.join(
@@ -415,6 +415,13 @@ root.keys(globalkeys)
 -- }}}
 
 -- {{{ Rules
+--[[
+   
+   name: Rules
+   @param
+   @return
+   
+]]--
 awful.rules.rules = {
     -- All clients will match this rule.
     { rule = { },
@@ -514,6 +521,7 @@ awful.rules.rules = {
                            "Error (pybliographer)",
                            "Open",
                            "Open file",
+                           "File Operation Progress",
                            "cryptkeeper",
                            "Mount stash"} },
       properties = { floating = true,
