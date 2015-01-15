@@ -546,7 +546,8 @@ awful.rules.rules = {
       callback = function(c)
         local screengeom = screen[mouse.screen].workarea
         local width  = math.floor(math.max(screengeom.width*0.25,650))
-        local height = math.floor(math.max(screengeom.height*0.40,350))
+        --local height = math.floor(math.max(screengeom.height*0.40,350))
+        local height = math.floor(math.max(screengeom.height*1.00,350))
         local x = screengeom.width-width
         local y = mywibox[mouse.screen].height  -- Panel height (assume top panel)
         c:geometry({ x=x, y=y, width = width, height = height })
