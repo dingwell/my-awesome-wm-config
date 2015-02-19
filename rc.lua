@@ -107,9 +107,10 @@ myawesomemenu = {
 
 myappsmenu = {
    { "Claws Mail", "claws-mail", "/usr/share/pixmaps/claws-mail.png"},
-   { "Diana","diana","/usr/local/share/pixmaps/diana.png"},
+   --{ "Diana","diana","/usr/local/share/pixmaps/diana.png"},
    { "Firefox", "firefox", beautiful.menu_firefox_icon },
    { "KeePass2 (USB)","external_keepass.sh","/usr/share/pixmaps/keepass2.png"},
+   { "PDF Chain","pdfchain","/usr/share/app-install/icons/pdfchain.png"},
    { "Screen Ruler","screenruler","/usr/share/pixmaps/screenruler.png"},
    { "Thunar Files", "thunar", beautiful.menu_files_icon },
    { "Zim Notes", "zim", "/usr/share/pixmaps/zim.png"}
@@ -523,7 +524,8 @@ awful.rules.rules = {
                            "Open file",
                            "File Operation Progress",
                            "cryptkeeper",
-                           "Mount stash"} },
+                           "Mount stash"},
+                   instance = {"Floating window"} },
       properties = { floating = true,
                       opacity = 0.9,
                       ontop = true},
