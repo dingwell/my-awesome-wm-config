@@ -1,6 +1,6 @@
 ---------------------------
 -- Designed to work with --
--- Xfce4 (Xubuntu 11.10) --
+-- Xfce4 (Xubuntu 14.04) --
 ---------------------------
 
 -- Standard awesome library
@@ -23,7 +23,7 @@ home = os.getenv("HOME")      -- Path to home directory
   wallpapertool = "nitrogen " .. 
     home .. "/Pictures/wallpapers"    -- For myawesomemenu
   wallpapercmd  = "nitrogen --restore &"  -- For theme.lua
-beautiful.init(".config/awesome/themes/adam/theme.lua")
+beautiful.init(home .. "/.config/awesome/themes/adam/theme.lua")
 -- beautiful.init("/usr/share/awesome/themes/zenburn/theme.lua")
 
 -- Define some default programs 
@@ -110,24 +110,43 @@ myappsmenu = {
    --{ "Diana","diana","/usr/local/share/pixmaps/diana.png"},
    { "Firefox", "firefox", beautiful.menu_firefox_icon },
    { "KeePass2 (USB)","external_keepass.sh","/usr/share/pixmaps/keepass2.png"},
-   { "PDF Chain","pdfchain","/usr/share/app-install/icons/pdfchain.png"},
-   { "Screen Ruler","screenruler","/usr/share/pixmaps/screenruler.png"},
-   { "Thunar Files", "thunar", beautiful.menu_files_icon },
-   { "Zim Notes", "zim", "/usr/share/pixmaps/zim.png"}
+   { "Thunar Files", "thunar", beautiful.menu_files_icon }
    --{ "Tomboy Notes", "tomboy", "/usr/share/pixmaps/tomboy-32.xpm"}
 }
+
+myofficemenu = {
+   { "Claws Mail", "claws-mail", "/usr/share/pixmaps/claws-mail.png"},
+   { "Libre Office Calc", "libreoffice --calc", beautiful.menu_office_calc_icon},
+   { "Libre Office Impress", beautiful.menu_office_impress_icon},
+   { "Libre Office Write", "libreoffice --writer", beautiful.menu_office_write_icon},
+   { "PDF Chain","pdfchain","/usr/share/app-install/icons/pdfchain.png"},
+   { "Pybliographer", "pybliographer", "/usr/share/pixmaps/pybliographic.png"},
+   { "Screen Ruler","screenruler","/usr/share/pixmaps/screenruler.png"},
+   { "Zim Notes", "zim", "/usr/share/pixmaps/zim.png"}
+}
+
+mydevelopmentmenu = {
+   { "Geany IDE", "geany", "/usr/share/pixmaps/geany.xpm"},
+   { "gitg Git viewer", "gitg", "/usr/share/pixmaps/gtg.xpm"}
+}
+
 mysysmenu = {
   { "Disk Usage", "baobab", "/usr/share/pixmaps/baobab.xpm"},
   { "Time and Date", "gksu system-config-date"}
 }
 
-mymainmenu = awful.menu({ items = { { "awesome", myawesomemenu, beautiful.awesome_icon },
-                                    { "Applications", myappsmenu, beautiful.menu_apps_icon },
-                                    { "System Tools", mysysmenu, "/usr/share/pixmaps/synaptic.png" },
-                                    { "Debian", debian.menu.Debian_menu.Debian, beautiful.menu_debian_icon },
-                                    { "open terminal", terminal, beautiful.menu_terminal_icon }
-                                  }
-                        })
+mymainmenu = awful.menu({ items = {
+         { "awesome", myawesomemenu, beautiful.awesome_icon },
+         { "Applications", myappsmenu, beautiful.menu_apps_icon },
+         { "Development", mydevelopmentmenu,
+            "/usr/share/app-install/icons/kbibtex.png"},
+         { "Office", myofficemenu, beautiful.menu_office_icon},
+         { "System Tools", mysysmenu,
+            "/usr/share/pixmaps/synaptic.png" },
+         { "Debian", debian.menu.Debian_menu.Debian, beautiful.menu_debian_icon },
+         { "open terminal", terminal, beautiful.menu_terminal_icon }
+      }
+})
 
 mylauncher = awful.widget.launcher({ image = image(beautiful.awesome_icon),
                                      menu = mymainmenu })
