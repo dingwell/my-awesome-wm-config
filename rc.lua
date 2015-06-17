@@ -109,6 +109,8 @@ myappsmenu = {
    { "Claws Mail", "claws-mail", "/usr/share/pixmaps/claws-mail.png"},
    --{ "Diana","diana","/usr/local/share/pixmaps/diana.png"},
    { "Firefox", "firefox", beautiful.menu_firefox_icon },
+   { "Inkscape (Xephyr)","run_inkscape_under_xephyr.sh",
+      "/usr/share/pixmaps/inkscape.xpm"},
    { "KeePass2 (USB)","external_keepass.sh","/usr/share/pixmaps/keepass2.png"},
    { "Thunar Files", "thunar", beautiful.menu_files_icon }
    --{ "Tomboy Notes", "tomboy", "/usr/share/pixmaps/tomboy-32.xpm"}
@@ -125,6 +127,10 @@ myofficemenu = {
    { "Zim Notes", "zim", "/usr/share/pixmaps/zim.png"}
 }
 
+--mydesktopsmenu = {
+--   { "XFCE-desktop","run_xfce_xephyr.sh","/usr/share/pixmaps/xfce4_xicon3.png"}
+--}
+
 mydevelopmentmenu = {
    { "Geany IDE", "geany", "/usr/share/pixmaps/geany.xpm"},
    { "gitg Git viewer", "gitg", "/usr/share/pixmaps/gtg.xpm"}
@@ -140,6 +146,7 @@ mymainmenu = awful.menu({ items = {
          { "Applications", myappsmenu, beautiful.menu_apps_icon },
          { "Development", mydevelopmentmenu,
             "/usr/share/app-install/icons/kbibtex.png"},
+--         { "Desktops (nested)", mydesktopsmenu, beautiful.desktop_icon},
          { "Office", myofficemenu, beautiful.menu_office_icon},
          { "System Tools", mysysmenu,
             "/usr/share/pixmaps/synaptic.png" },

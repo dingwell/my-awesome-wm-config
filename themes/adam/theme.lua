@@ -103,6 +103,7 @@ theme.menu_terminal_icon     = themepath .. "/icons/terminal.png"
 theme.menu_test_icon         = themepath .. "/icons/xephyr.png"
 theme.menu_wallpaper_icon    = themepath .. "/icons/nitrogen.png"
 theme.tasklist_floating_icon = themepath .. "/icons/floating.png"
+theme.desktop_icon           = themepath .. "/icons/desktop.png"
 -- }}}
 
 -- {{{ Layout
