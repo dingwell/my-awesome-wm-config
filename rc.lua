@@ -1,17 +1,19 @@
 ---------------------------
 -- Designed to work with --
--- Xfce4 (Xubuntu 14.04) --
+-- Xfce4 (Xubuntu 15.10) --
+-- awesome-wm v3.5.6     --
 ---------------------------
 
 -- Standard awesome library
-require("awful")
+awful = require("awful")
 require("awful.autofocus")
-require("awful.rules")
-require("beautiful")          -- Theme handling library
-require("naughty")            -- Notification library
-require("vicious")            -- Widgets library (basic)
+awful.rules = require("awful.rules")
+beautiful = require("beautiful")          -- Theme handling library
+--require("naughty")            -- Notification library
+vicious = require("vicious")            -- Widgets library (basic)
 --require("menubar")            -- (custom) dmenu-like freedesktop.menu (remove?)
 require("debian.menu")        -- Load Debian menu entries
+local wibox = require("wibox")
 
 -- {{{ Variable definitions
 home = os.getenv("HOME")      -- Path to home directory
@@ -23,8 +25,8 @@ home = os.getenv("HOME")      -- Path to home directory
   wallpapertool = "nitrogen " .. 
     home .. "/Pictures/wallpapers"    -- For myawesomemenu
   wallpapercmd  = "nitrogen --restore &"  -- For theme.lua
-beautiful.init(home .. "/.config/awesome/themes/adam/theme.lua")
--- beautiful.init("/usr/share/awesome/themes/zenburn/theme.lua")
+  beautiful.init(home .. "/.config/awesome/themes/adam/theme.lua")
+--beautiful.init("/usr/share/awesome/themes/zenburn/theme.lua")
 
 -- Define some default programs 
 -- This does not apply for the entire Xsession
@@ -133,7 +135,8 @@ myofficemenu = {
 
 mydevelopmentmenu = {
    { "Geany IDE", "geany", "/usr/share/pixmaps/geany.xpm"},
-   { "gitg Git viewer", "gitg", "/usr/share/pixmaps/gtg.xpm"}
+   { "gitg Git viewer", "gitg", "/usr/share/pixmaps/gtg.xpm"},
+   { "GitKraken","gitkraken",beautiful.menu_kraken_icon}
 }
 
 mysysmenu = {
@@ -155,7 +158,7 @@ mymainmenu = awful.menu({ items = {
       }
 })
 
-mylauncher = awful.widget.launcher({ image = image(beautiful.awesome_icon),
+mylauncher = awful.widget.launcher({ image = beautiful.awesome_icon,
                                      menu = mymainmenu })
 -- }}}
 
@@ -174,20 +177,22 @@ mylauncher = awful.widget.launcher({ image = image(beautiful.awesome_icon),
 
 -- Network usage widget
 -- Initialize widget
-netwidget    = widget({type = "textbox" })
-dnicon	     = widget({ type = "imagebox" })
-upicon	     = widget({ type = "imagebox" })
-dnicon.image = image(beautiful.widget_net)
-upicon.image = image(beautiful.widget_netup)
+--netwidget    = widget({type = "textbox" })
+netwidget    = wibox.widget.textbox()
+dnicon	     = wibox.widget.imagebox()  --widget({ type = "imagebox" })
+upicon	     = wibox.widget.imagebox()  --widget({ type = "imagebox" })
+dnicon.image = beautiful.widget_net -- wibox.widget.imagebox()  --image(beautiful.widget_net)
+upicon.image = beautiful.wibox_netup  -- wibox.widget.imagebox()  --image(beautiful.widget_netup)
 
 --Register widget
 vicious.register(netwidget, vicious.widgets.net, '<span color="#CC9393">${eth0 down_mb}</span> <span color="#7F9F7F">${eth0 up_mb}</span>', 3)
 
 -- Create a textclock widget
-mytextclock = awful.widget.textclock({ align = "right" })
+--mytextclock = awful.widget.textclock({ align = "right" })
+mytextclock = awful.widget.textclock()
 
 -- Create a systray
-mysystray = widget({ type = "systray" })
+mysystray = wibox.widget.systray() --widget({ type = "systray" })
 
 -- Create a keyboard layout switcher
 --kbdcfg = {}
@@ -256,7 +261,8 @@ mytasklist.buttons = awful.util.table.join(
 
 for s = 1, screen.count() do
     -- Create a promptbox for each screen
-    mypromptbox[s] = awful.widget.prompt({ layout = awful.widget.layout.horizontal.leftright })
+    mypromptbox[s] = awful.widget.prompt()
+   -- mypromptbox[s] = awful.widget.prompt({ layout = awful.widget.layout.horizontal.leftright })
     -- Create an imagebox widget which will contains an icon indicating which layout we're using.
     -- We need one layoutbox per screen.
     mylayoutbox[s] = awful.widget.layoutbox(s)
@@ -266,36 +272,61 @@ for s = 1, screen.count() do
                            awful.button({ }, 4, function () awful.layout.inc(layouts, 1) end),
                            awful.button({ }, 5, function () awful.layout.inc(layouts, -1) end)))
     -- Create a taglist widget
-    mytaglist[s] = awful.widget.taglist(s, awful.widget.taglist.label.all, mytaglist.buttons)
+    --mytaglist[s] = awful.widget.taglist(s, awful.widget.taglist.label.all, mytaglist.buttons)
+    mytaglist[s] = awful.widget.taglist(s, awful.widget.taglist.filter.all, mytaglist.buttons)
 
     -- Create a tasklist widget
-    mytasklist[s] = awful.widget.tasklist(function(c)
-                                              return awful.widget.tasklist.label.currenttags(c, s)
-                                          end, mytasklist.buttons)
+    mytasklist[s] = awful.widget.tasklist(s, awful.widget.tasklist.filter.currenttags, mytasklist.buttons,nil,tasklistupdate)
+    --mytasklist[s] = awful.widget.tasklist(function(c)
+    --                                          return awful.widget.tasklist.label.currenttags(c, s)
+    --                                      end, mytasklist.buttons)
 
     -- Create the wibox
-    mywibox[s] = awful.wibox({ screen = s,
+    mywibox[s] = awful.wibox({
+      screen = s,
       height = 18,
       position = "top"
     })
-    -- Add widgets to the wibox - order matters
-    mywibox[s].widgets = {
-        {
-            mylauncher,
-            mytaglist[s],
-            mypromptbox[s],
-            layout = awful.widget.layout.horizontal.leftright
-        },
-        mylayoutbox[s],
-        mytextclock,
-	s == 1 and mysystray or nil,
+    -- Add widgets to the wibox:
+    -- Widgets which should be placed to the left:
+    local left_layout = wibox.layout.fixed.horizontal()
+    left_layout:add(mylauncher)
+    left_layout:add(mytaglist[s])
+    --left_layout:add(mytasklist[s])
+    left_layout:add(mypromptbox[s])
+
+    -- Widgets which should be placed to the right:
+    local right_layout =wibox.layout.fixed.horizontal()
+    right_layout:add(mysystray)
+    right_layout:add(mytextclock)
+    right_layout:add(mylayoutbox[s])
+
+    -- The tasklist should be placed in the middle and it should completely fill the remaining space 
+    local layout = wibox.layout.align.horizontal()
+    layout:set_left(left_layout)
+    layout:set_middle(mytasklist[s])
+    layout:set_right(right_layout)
+
+    mywibox[s]:set_widget(layout)
+    --
+
+    --mywibox[s].widgets = {
+    --    {
+    --        mylauncher,
+    --        mytaglist[s],
+    --        mypromptbox[s],
+    --        layout = awful.widget.layout.horizontal.leftright
+    --    },
+    --    mylayoutbox[s],
+    --    mytextclock,
+	--s == 1 and mysystray or nil,
   --kbdcfg.widget,
-	upicon,
-	netwidget,  
-	dnicon,
-        mytasklist[s],
-        layout = awful.widget.layout.horizontal.rightleft
-    }
+	--upicon,
+	--netwidget,  
+	--dnicon,
+   --     mytasklist[s],
+  --      layout = awful.widget.layout.horizontal.rightleft
+ --   }
 end
 -- }}}
 
@@ -637,12 +668,12 @@ elseif  screen.count() > 1 then   -- Rules specific to dual monitor setup
 
 -- {{{ Signals
 -- Signal function to execute when a new client appears.
-client.add_signal("manage", function (c, startup)
+client.connect_signal("manage", function (c, startup)
     -- Add a titlebar
     -- awful.titlebar.add(c, { modkey = modkey })
 
     -- Enable sloppy focus
-    c:add_signal("mouse::enter", function(c)
+    c:connect_signal("mouse::enter", function(c)
         if awful.layout.get(c.screen) ~= awful.layout.suit.magnifier
             and awful.client.focus.filter(c) then
             client.focus = c
@@ -662,8 +693,8 @@ client.add_signal("manage", function (c, startup)
     end
 end)
 
-client.add_signal("focus", function(c) c.border_color = beautiful.border_focus end)
-client.add_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)
+client.connect_signal("focus", function(c) c.border_color = beautiful.border_focus end)
+client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)
 -- }}}
 
 
