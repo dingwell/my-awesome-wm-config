@@ -11,9 +11,11 @@ themepath=".config/awesome/themes/adam"
 
 -- {{{ Main
 theme = {}
+-- TODO: figure out why wallpaper_cmd is no longer available in theme.lua...
 --theme.wallpaper_cmd = { "awsetbg .config/awesome/wallpapers/wallpaper.jpg" }
 if wallpapercmd == nil then
-  theme.wallpaper_cmd = { "awsetbg .config/awesome/themes/adam/background.png" }
+  theme.wallpaper_cmd = { "nitrogen --restore &" }
+  --theme.wallpaper_cmd = { "awsetbg .config/awesome/themes/adam/background.png" }
 else
   theme.wallpaper_cmd = { wallpapercmd }
 end
