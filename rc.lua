@@ -124,7 +124,7 @@ myofficemenu = {
    { "Libre Office Impress", beautiful.menu_office_impress_icon},
    { "Libre Office Write", "libreoffice --writer", beautiful.menu_office_write_icon},
    { "PDF Chain","pdfchain","/usr/share/app-install/icons/pdfchain.png"},
-   { "Pybliographic", "pybliographic", "/usr/share/pixmaps/pybliographic.png"},
+   { "Pybliographic", "pybliographic ~/Documents/Jobb_local/references/bibliography.bib", "/usr/share/pixmaps/pybliographic.png"},
    { "Screen Ruler","screenruler","/usr/share/pixmaps/screenruler.png"},
    { "Zim Notes", "zim", "/usr/share/pixmaps/zim.png"}
 }
