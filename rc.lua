@@ -32,7 +32,7 @@ home = os.getenv("HOME")      -- Path to home directory
 -- This does not apply for the entire Xsession
 -- but is used internally by awesome for autostart
 -- and creating the launch menu
-terminal      = "sakura" or "xterm"
+terminal      = "sakura -e 'env TERM=xterm-256color /bin/bash'" or "xterm"
 editor        = os.getenv("EDITOR") or "vim"
 editor_cmd    = terminal .. " -e " .. editor
 filemanager   = "thunar" or "nautilus"
