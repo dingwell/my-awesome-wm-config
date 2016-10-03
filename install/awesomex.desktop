@@ -1,0 +1,8 @@
+[Desktop Entry]
+Version=1.0
+Encoding=UTF-8
+Name=Awesome wm Xsession
+Comment=Highly configurable framework window manager
+TryExec=/etc/X11/Xsession
+Exec=/etc/X11/Xsession
+
