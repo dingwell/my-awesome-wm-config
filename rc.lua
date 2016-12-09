@@ -590,6 +590,11 @@ awful.rules.rules = {
       callback = function(c)
         awful.placement.centered(c,nil)
       end },
+-- WINDOWS that should not steal focus:
+    { rule_any = { class = {"Xfce4-notifyd"} },
+      properties = { focus = false,
+                     border_width = 0 },
+    },
 -- FLOATING WINDOWS (for apps in the indicator field: upper right corner)
     { rule_any = { class = {"KeePass2",
                             "Ubuntuone-installer",
